@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="baseaccountsystem.client/baseaccountsystem.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="BaseAccountSystem.Server/BaseAccountSystem.Server.csproj" />
+</Solution>
