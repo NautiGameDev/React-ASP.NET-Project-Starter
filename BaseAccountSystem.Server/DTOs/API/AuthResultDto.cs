@@ -7,6 +7,7 @@
         public string? RefreshToken { get; set; } = "";
         public string? ErrorMessage { get; set; } = "";
         public AuthErrorType ErrorType { get; set; } = AuthErrorType.ProcessFailed;
+        public string? UserId { get; set; } = "Unknown";
     }
 
     public enum AuthErrorType { None, NotFound, InvalidCredentials, ProcessFailed }

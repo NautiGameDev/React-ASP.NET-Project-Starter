@@ -37,7 +37,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Missing credentials",
-                    ErrorType = AuthErrorType.ProcessFailed
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = "Unknown"
                 };
             }
 
@@ -49,7 +50,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Invalid username/password combination",
-                    ErrorType = AuthErrorType.NotFound
+                    ErrorType = AuthErrorType.NotFound,
+                    UserId = "Unknown"
                 };
             }
 
@@ -61,7 +63,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Invalid username/password combination",
-                    ErrorType = AuthErrorType.InvalidCredentials
+                    ErrorType = AuthErrorType.InvalidCredentials,
+                    UserId = account.Id
                 };
             }
 
@@ -73,7 +76,8 @@ namespace BaseAccountSystem.Server.Services
                 Success = true,
                 Token = token,
                 RefreshToken = refreshToken,
-                ErrorType = AuthErrorType.None
+                ErrorType = AuthErrorType.None,
+                UserId = account.Id
             };
         }
 
@@ -85,7 +89,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Credentials not present in DTO",
-                    ErrorType = AuthErrorType.ProcessFailed
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = "Unknown"
                 };
             }
 
@@ -103,7 +108,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = string.Join(", ", createdAccount.Errors.Select(e => e.Description)),
-                    ErrorType = AuthErrorType.ProcessFailed
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = "Unknown"
                 };
             }
 
@@ -117,43 +123,11 @@ namespace BaseAccountSystem.Server.Services
                 Success = true,
                 Token = token,
                 RefreshToken = refreshToken,
-                ErrorType = AuthErrorType.None
+                ErrorType = AuthErrorType.None,
+                UserId = account.Id
             };
         }
-
-        //May not need. Might delete?
-        public async Task<AuthResultDto> ValidatePassword(string userId, string password)
-        {
-            Account? account = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
-
-            if (account == null)
-            {
-                return new AuthResultDto()
-                {
-                    Success = false,
-                    ErrorMessage = "Account could not be found with that UserId",
-                    ErrorType = AuthErrorType.NotFound
-                };
-            }
-
-            var result = await _signInManager.CheckPasswordSignInAsync(account, password, false);
-
-            if (!result.Succeeded)
-            {
-                return new AuthResultDto()
-                {
-                    Success = false,
-                    ErrorMessage = "Incorrect password",
-                    ErrorType = AuthErrorType.InvalidCredentials
-                };
-            }
-
-            return new AuthResultDto()
-            {
-                Success = true
-            };
-        }
-
+        
         public async Task<AuthResultDto> UpdateAccount(string userId, UpdateAccountDto dto)
         {
             Account? account = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
@@ -164,7 +138,8 @@ namespace BaseAccountSystem.Server.Services
                 { 
                     Success = false,
                     ErrorMessage = "Account could not be found with that UserId",
-                    ErrorType = AuthErrorType.NotFound
+                    ErrorType = AuthErrorType.NotFound,
+                    UserId = "Unknown"
                 };
             }
 
@@ -176,7 +151,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Current password is incorrect",
-                    ErrorType = AuthErrorType.InvalidCredentials
+                    ErrorType = AuthErrorType.InvalidCredentials,
+                    UserId = account.Id
                 };
             }
 
@@ -211,7 +187,8 @@ namespace BaseAccountSystem.Server.Services
                 return new AuthResultDto()
                 {
                     Success = true,
-                    ErrorType = AuthErrorType.None
+                    ErrorType = AuthErrorType.None,
+                    UserId = account.Id
                 };
             }
             catch (Exception ex)
@@ -221,7 +198,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = ex.Message,
-                    ErrorType = AuthErrorType.ProcessFailed
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = account.Id
                 };
             }            
         }
@@ -237,7 +215,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Refresh token not found in database",
-                    ErrorType = AuthErrorType.NotFound
+                    ErrorType = AuthErrorType.NotFound,
+                    UserId = "Unknown"
                 };
             }
 
@@ -248,7 +227,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Invalid refresh token session",
-                    ErrorType = AuthErrorType.ProcessFailed
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = currentToken.UserId
                 };
             }
 
@@ -259,7 +239,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Refresh token expired",
-                    ErrorType = AuthErrorType.ProcessFailed
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = currentToken.UserId
                 };
             }
 
@@ -305,7 +286,8 @@ namespace BaseAccountSystem.Server.Services
                     Success = true,
                     ErrorType = AuthErrorType.None,
                     Token = newAuthToken,
-                    RefreshToken = newRefreshToken
+                    RefreshToken = newRefreshToken,
+                    UserId= currentToken.UserId
                 };
             }
             catch (Exception ex)
@@ -315,7 +297,8 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "An unexpected error occurred while processing session data",
-                    ErrorType = AuthErrorType.ProcessFailed
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = currentToken.UserId
                 };
             }            
         }

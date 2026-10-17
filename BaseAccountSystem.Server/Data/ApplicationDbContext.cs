@@ -12,6 +12,7 @@ namespace BaseAccountSystem.Server.Data
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

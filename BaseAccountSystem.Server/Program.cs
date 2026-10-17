@@ -75,9 +75,15 @@ builder.Services.AddCors(options =>
 });
 
 //Dependency Injection
+
+//Accounts
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAccountRepo, AccountRepo>();
+
+//Activity Logs
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+builder.Services.AddScoped<IActivityLogRepo, ActivityLogRepo>();
 
 var app = builder.Build();
 

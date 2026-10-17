@@ -87,6 +87,45 @@ namespace BaseAccountSystem.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("BaseAccountSystem.Server.Models.ActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ActivityType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsSuccess")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserClient")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("ActivityLogs");
+                });
+
             modelBuilder.Entity("BaseAccountSystem.Server.Models.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -107,7 +146,7 @@ namespace BaseAccountSystem.Server.Migrations
                     b.Property<string>("ReplacedByToken")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Revoked")
+                    b.Property<DateTime?>("Revoked")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TokenHash")
@@ -268,6 +307,15 @@ namespace BaseAccountSystem.Server.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("BaseAccountSystem.Server.Models.ActivityLog", b =>
+                {
+                    b.HasOne("BaseAccountSystem.Server.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId");
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
