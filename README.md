@@ -9,4 +9,4 @@ This project is a work in progress. It's a starter project that handles API boil
 * Account confirmation with email service
 * Password reset system
 * Simple frontend form with API client
-* Unit test design and implementation
+* Unit test design and implementation [Done]
