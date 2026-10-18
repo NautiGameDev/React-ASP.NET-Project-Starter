@@ -5,7 +5,7 @@ This project is a work in progress. It's a starter project that handles API boil
 * API boilerplate, CORS configuration, JWT configuration, general Program.cs setup [Done]
 * Account Login, Registration, and Updating systems [Done]
 * Refresh token handling [Done]
-* Error Logging
+* Logging system [Done]
 * Account confirmation with email service
 * Password reset system
 * Simple frontend form with API client
