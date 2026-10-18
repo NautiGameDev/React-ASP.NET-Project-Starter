@@ -49,7 +49,7 @@ namespace BaseAccountSystem.Server.Services
                 return new AuthResultDto
                 {
                     Success = false,
-                    ErrorMessage = "Invalid username/password combination",
+                    ErrorMessage = $"Invalid Username/Password combination",
                     ErrorType = AuthErrorType.NotFound,
                     UserId = "Unknown"
                 };
@@ -62,7 +62,7 @@ namespace BaseAccountSystem.Server.Services
                 return new AuthResultDto()
                 {
                     Success = false,
-                    ErrorMessage = "Invalid username/password combination",
+                    ErrorMessage = "Invalid Username/Password combination",
                     ErrorType = AuthErrorType.InvalidCredentials,
                     UserId = account.Id
                 };
@@ -171,7 +171,7 @@ namespace BaseAccountSystem.Server.Services
                     }
                 }
 
-                if (account.Email != dto.Email)
+                if (!string.IsNullOrWhiteSpace(dto.Email) && account.Email != dto.Email)
                 {
                     var emailResult = await _userManager.SetEmailAsync(account, dto.Email);
 

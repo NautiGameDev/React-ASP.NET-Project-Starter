@@ -3,5 +3,6 @@
     <Build />
     <Deploy />
   </Project>
+  <Project Path="BaseAccountSystem.Server.Tests/BaseAccountSystem.Server.Tests.csproj" Id="c7be45d9-3c42-467e-801d-7b7e236bbfcc" />
   <Project Path="BaseAccountSystem.Server/BaseAccountSystem.Server.csproj" />
 </Solution>
