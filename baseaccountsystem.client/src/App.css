@@ -1,11 +1,59 @@
-﻿#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+﻿body {
+    overflow-x: hidden;
+    background-color: whitesmoke;
 }
 
-th, td {
-    padding-left: 1rem;
-    padding-right: 1rem;
+.app-container {
+    width: 100vw;
+    height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 0px;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page form {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #111;
+    padding: 16px;
+    gap: 16px;
+    background-color: white;
+}
+
+.form-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.form-header h1 {
+    margin: 0px 0px 16px 0px;
+}
+
+.form-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-row label {
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.form-btn-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 16px;
+    gap: 8px;
 }
