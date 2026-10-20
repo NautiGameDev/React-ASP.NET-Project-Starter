@@ -26,7 +26,7 @@ builder.Services.AddIdentity<Account, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
-    options.SignIn.RequireConfirmedAccount = false; //Update in future when email services are available
+    options.SignIn.RequireConfirmedAccount = true;
     options.User.RequireUniqueEmail = true;
 }).AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -76,6 +76,9 @@ builder.Services.AddCors(options =>
 
 //Dependency Injection
 
+//Settings
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
 //Accounts
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -84,6 +87,9 @@ builder.Services.AddScoped<IAccountRepo, AccountRepo>();
 //Activity Logs
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddScoped<IActivityLogRepo, ActivityLogRepo>();
+
+//Email
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 var app = builder.Build();
 
@@ -121,7 +127,8 @@ using (var scope = app.Services.CreateScope())
         var adminUser = new Account
         {
             UserName = builder.Configuration["AdminConfig:Username"],
-            Email = builder.Configuration["AdminConfig:Email"]
+            Email = builder.Configuration["AdminConfig:Email"],
+            EmailConfirmed = true
         };
 
         var result = await userManager.CreateAsync(adminUser, builder.Configuration["AdminConfig:Password"]);

@@ -1,11 +1,14 @@
-﻿using BaseAccountSystem.Server.Data;
+﻿using System.Text;
+using BaseAccountSystem.Server.Data;
 using BaseAccountSystem.Server.DTOs.Account;
 using BaseAccountSystem.Server.DTOs.API;
+using BaseAccountSystem.Server.DTOs.Email;
 using BaseAccountSystem.Server.Helpers;
 using BaseAccountSystem.Server.Interfaces.Repos;
 using BaseAccountSystem.Server.Interfaces.Services;
 using BaseAccountSystem.Server.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseAccountSystem.Server.Services
@@ -17,17 +20,20 @@ namespace BaseAccountSystem.Server.Services
         private readonly SignInManager<Account> _signInManager;
         private readonly IAccountRepo _accountRepo;
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _config;
+        private readonly IEmailService _emailService;
 
-        
-        public AccountService(UserManager<Account> userManager, ITokenService tokenService, SignInManager<Account> signInManager, IAccountRepo accountRepo, ApplicationDbContext context)
+
+        public AccountService(UserManager<Account> userManager, ITokenService tokenService, SignInManager<Account> signInManager, IAccountRepo accountRepo, ApplicationDbContext context, IConfiguration config, IEmailService emailService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _accountRepo = accountRepo;
             _context = context;
+            _config = config;
+            _emailService = emailService;
         }
-
 
         public async Task<AuthResultDto> Login(LoginDto dto, string ip)
         {
@@ -57,8 +63,30 @@ namespace BaseAccountSystem.Server.Services
 
             var result = await _signInManager.CheckPasswordSignInAsync(account, dto.Password, false);
 
+            
             if (!result.Succeeded)
             {
+                if (result.IsNotAllowed)
+                {
+                    return new AuthResultDto()
+                    {
+                        Success = false,
+                        ErrorMessage = "Attempted login to unconfirmed account",
+                        ErrorType = AuthErrorType.InvalidCredentials,
+                        UserId = account.Id
+                    };
+                }
+                else if (result.IsLockedOut)
+                {
+                    return new AuthResultDto()
+                    {
+                        Success = false,
+                        ErrorMessage = "Attempted login to locked account",
+                        ErrorType = AuthErrorType.InvalidCredentials,
+                        UserId = account.Id
+                    };
+                }
+
                 return new AuthResultDto()
                 {
                     Success = false,
@@ -113,16 +141,31 @@ namespace BaseAccountSystem.Server.Services
                 };
             }
 
-            await _userManager.AddToRoleAsync(account, "User");
+            //Handle confirmation code and email
+            string rawToken = await _userManager.GenerateEmailConfirmationTokenAsync(account);
+            string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+            string confirmLink = $"{_config["ClientSettings:BaseUrl"]}/confirm-email?userId={account.Id}&code={encodedToken}";
 
-            string token = await _tokenService.CreateToken(account);
-            string refreshToken = await GenerateAndSaveRefreshToken(account.Id, ip);                     
+            await _emailService.CreateEmail(new NewEmailDto()
+            {
+                ToEmail = account.Email,
+                ToUser = account.UserName,
+                Subject = "Confirm your account",
+                HtmlBody = $"""
+                    <p>Hello {account.UserName},</p>
+
+                    <p>Please follow this link to finish account registration and confirm your account: <a href='{confirmLink}'>Account Confirmation</a></p>
+                """
+            });
+
+            
+            await _userManager.AddToRoleAsync(account, "User");                   
 
             return new AuthResultDto()
             {
                 Success = true,
-                Token = token,
-                RefreshToken = refreshToken,
+                Token = null,
+                RefreshToken = null,
                 ErrorType = AuthErrorType.None,
                 UserId = account.Id
             };
@@ -333,6 +376,57 @@ namespace BaseAccountSystem.Server.Services
             currentToken.Revoke();
 
             await _accountRepo.UpdateRefreshToken(currentToken);
+        }
+
+        public async Task<AuthResultDto> ConfirmAccount(ConfirmEmailDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.UserId);
+            if (user == null)
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = "User could not be found by that ID",
+                    ErrorType = AuthErrorType.NotFound,
+                    UserId = dto.UserId
+                };
+            }
+
+            string decodedToken;
+            try
+            {
+                decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(dto.ConfirmationCode));
+            }
+            catch (FormatException)
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = "Invalid confirmation token format.",
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = user.Id
+                };
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+            if (!result.Succeeded)
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = string.Join(", ", result.Errors.Select(e => e.Description)),
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = user.Id
+                };
+            }
+
+            return new AuthResultDto()
+            {
+                Success = true,
+                ErrorType = AuthErrorType.None,
+                UserId = user.Id               
+            };
         }
     }
 }

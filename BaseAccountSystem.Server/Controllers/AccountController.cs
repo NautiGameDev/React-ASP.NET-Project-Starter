@@ -1,6 +1,7 @@
 ﻿using BaseAccountSystem.Server.DTOs.Account;
 using BaseAccountSystem.Server.DTOs.ActivityLogs;
 using BaseAccountSystem.Server.DTOs.API;
+using BaseAccountSystem.Server.DTOs.Email;
 using BaseAccountSystem.Server.Helpers;
 using BaseAccountSystem.Server.Interfaces.Services;
 using BaseAccountSystem.Server.Models;
@@ -59,14 +60,32 @@ namespace BaseAccountSystem.Server.Controllers
                 await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.Register, false, result.ErrorMessage, UserClient, IpAddress);
 
                 return Conflict(new { message = result.ErrorMessage });
-            }
-
-
-            SetCookie(result.Token, result.RefreshToken);
+            }                        
 
             await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.Register, true, "Account registration successful", UserClient, IpAddress);
 
             return StatusCode(StatusCodes.Status201Created, new { message = "Account registration successful" });
+        }
+
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto dto)
+        {
+            AuthResultDto result = await _accountService.ConfirmAccount(dto);
+
+            if (!result.Success)
+            {
+                await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.Register, false, "Failed to confirm account activation code", UserClient, IpAddress);
+
+                return result.ErrorType switch
+                {
+                    AuthErrorType.NotFound => NotFound(new { message = result.ErrorMessage }),
+                    _ => BadRequest(new {message = result.ErrorMessage})
+                };
+            }
+
+            await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.Register, true, "Account confirmation successful", UserClient, IpAddress);
+
+            return Ok(new { message = "Account confirmed successfully" });
         }
 
         [HttpGet("check-logged")]

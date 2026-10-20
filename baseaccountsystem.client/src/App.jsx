@@ -7,6 +7,7 @@ import Unauthenticated from "./Pages/Unauthenticated";
 import Dashboard from './Pages/Dashboard';
 import Register from './Pages/Register';
 import NotFound from './Pages/NotFound';
+import AccountConfirmation from './Pages/AccountConfirmation';
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                 <Route path="Welcome/:username" element={<Welcome />} />
                 <Route path="SessionExpired" element={<SessionExpired />} />
                 <Route path="Unauthenticated" element={<Unauthenticated />} />
+                <Route path="confirm-email" element={<AccountConfirmation />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </div>

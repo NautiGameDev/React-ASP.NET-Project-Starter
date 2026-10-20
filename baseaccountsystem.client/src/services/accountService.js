@@ -27,3 +27,12 @@ export async function checkLoggedIn() {
 export async function handleLogout() {
     return await apiRequest("account/logout", 'POST', null);
 }
+
+export async function confirmEmail(userId, confirmationCode) {
+    const body = {
+        userId: userId,
+        confirmationCode: confirmationCode
+    }
+
+    return await apiRequest("account/confirm-email", 'POST', body);
+}
