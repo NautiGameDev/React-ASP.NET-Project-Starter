@@ -14,5 +14,7 @@ namespace BaseAccountSystem.Server.Interfaces.Services
         public Task<AuthResultDto> RefreshToken(string rawRefreshToken, string ip);
         public Task RevokeToken(string refreshToken);
         public Task<AuthResultDto> ConfirmAccount(ConfirmEmailDto dto);
+        public Task<AuthResultDto> RequestPasswordReset(string userEmail);
+        public Task<AuthResultDto> ConfirmPasswordReset(PasswordResetDto dto);
     }
 }

@@ -8,7 +8,7 @@ function Welcome() {
   return (
       <div className="page">
           <h1>Welcome {username}</h1>
-          <h2>Please check your email to confirm your account before continuing</h2>
+          <h2>Please check your email to confirm your account to gain access</h2>
       </div>
   );
 }

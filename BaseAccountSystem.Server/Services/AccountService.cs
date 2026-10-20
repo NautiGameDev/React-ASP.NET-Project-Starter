@@ -428,5 +428,104 @@ namespace BaseAccountSystem.Server.Services
                 UserId = user.Id               
             };
         }
+
+        public async Task<AuthResultDto> RequestPasswordReset(string userEmail)
+        {
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = "No email found in password reset request",
+                    ErrorType = AuthErrorType.ProcessFailed
+                };
+            }
+
+            Account? user = await _userManager.FindByEmailAsync(userEmail);
+
+            if (user == null)
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = "User could not be found with that email",
+                    ErrorType = AuthErrorType.NotFound
+                };
+            }
+
+            string rawToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+            string confirmLink = $"{_config["ClientSettings:BaseUrl"]}/reset-password?userId={user.Id}&code={encodedToken}";
+
+            await _emailService.CreateEmail(new NewEmailDto()
+            {
+                ToEmail = user.Email,
+                ToUser = user.UserName,
+                Subject = "Reset password",
+                HtmlBody = $"""
+                    <p>Hello {user.UserName},</p>
+
+                    <p>A request has been made to reset the password on your account. To reset your password, please use the following link: <a href='{confirmLink}'>Reset Password</a></p>
+                """
+            });
+
+            return new AuthResultDto()
+            {
+                Success = true,
+                ErrorType = AuthErrorType.None
+            };
+        }
+
+        public async Task<AuthResultDto> ConfirmPasswordReset(PasswordResetDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.UserId);
+            if (user == null)
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = "User could not be found by that ID",
+                    ErrorType = AuthErrorType.NotFound,
+                    UserId = dto.UserId
+                };
+            }
+
+            string decodedToken;
+            try
+            {
+                decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(dto.Code));
+            }
+            catch (FormatException)
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = "Invalid confirmation token format.",
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = user.Id
+                };
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, dto.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return new AuthResultDto()
+                {
+                    Success = false,
+                    ErrorMessage = string.Join(", ", result.Errors.Select(e => e.Description)),
+                    ErrorType = AuthErrorType.ProcessFailed,
+                    UserId = user.Id
+                };
+            }
+
+            return new AuthResultDto()
+            {
+                Success = true,
+                ErrorType = AuthErrorType.None,
+                UserId = user.Id
+            };
+        }
+
     }
 }

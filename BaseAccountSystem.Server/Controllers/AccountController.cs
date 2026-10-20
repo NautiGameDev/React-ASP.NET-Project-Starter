@@ -60,7 +60,7 @@ namespace BaseAccountSystem.Server.Controllers
                 await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.Register, false, result.ErrorMessage, UserClient, IpAddress);
 
                 return Conflict(new { message = result.ErrorMessage });
-            }                        
+            }
 
             await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.Register, true, "Account registration successful", UserClient, IpAddress);
 
@@ -79,13 +79,47 @@ namespace BaseAccountSystem.Server.Controllers
                 return result.ErrorType switch
                 {
                     AuthErrorType.NotFound => NotFound(new { message = result.ErrorMessage }),
-                    _ => BadRequest(new {message = result.ErrorMessage})
+                    _ => BadRequest(new { message = result.ErrorMessage })
                 };
             }
 
             await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.Register, true, "Account confirmation successful", UserClient, IpAddress);
 
             return Ok(new { message = "Account confirmed successfully" });
+        }
+
+        [HttpPost("request-reset-password")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetDto dto)
+        {
+            if (string.IsNullOrEmpty(dto.Email))
+            {
+                return BadRequest(new { message = "Server failed to receive a valid email" });
+            }
+
+            AuthResultDto result = await _accountService.RequestPasswordReset(dto.Email);
+
+            await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.PasswordResetRequest, result.Success, $"Password request handled. Errors: {result.ErrorType}", UserClient, IpAddress);
+            
+            return Ok(new { message = "If an account with this email exists, instructions to reset the password for this account will be sent to the email." });
+        }
+
+        [HttpPost("confirm-reset-password")]
+        public async Task<IActionResult> ConfirmPasswordReset([FromBody] PasswordResetDto dto)
+        {
+            AuthResultDto result = await _accountService.ConfirmPasswordReset(dto);
+
+            await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.PasswordResetRequest, result.Success, result.ErrorMessage ?? "Password reset successfully", UserClient, IpAddress);
+
+            if (!result.Success)
+            {
+                return result.ErrorType switch
+                {
+                    AuthErrorType.NotFound => NotFound(new { message = "Invalid or expired password reset link" }),
+                    _ => BadRequest(new { message = "Invalid or expired password reset link" })
+                };
+            }
+
+            return Ok(new { message = "Password reset successfully" });
         }
 
         [HttpGet("check-logged")]

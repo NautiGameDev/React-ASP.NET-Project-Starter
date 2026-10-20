@@ -36,3 +36,21 @@ export async function confirmEmail(userId, confirmationCode) {
 
     return await apiRequest("account/confirm-email", 'POST', body);
 }
+
+export async function requestPasswordReset(email) {
+    const body = {
+        email: email
+    }
+
+    return await apiRequest("account/request-reset-password", 'POST', body);
+}
+
+export async function confirmPasswordReset(userId, confirmationCode, newPassword) {
+    const body = {
+        userId: userId,
+        code: confirmationCode,
+        newPassword: newPassword
+    }
+
+    return await apiRequest("account/confirm-reset-password", 'POST', body);
+}
