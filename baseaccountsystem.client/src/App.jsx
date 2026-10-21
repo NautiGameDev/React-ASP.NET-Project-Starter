@@ -10,6 +10,7 @@ import NotFound from './Pages/NotFound';
 import AccountConfirmation from './Pages/AccountConfirmation';
 import RequestPasswordReset from './Pages/RequestPasswordReset';
 import ConfirmPasswordReset from './Pages/ConfirmPasswordReset';
+import ActivityLogs from './Pages/ActivityLogs';
 
 function App() {
     return (
@@ -23,7 +24,8 @@ function App() {
                 <Route path="unauthenticated" element={<Unauthenticated />} />
                 <Route path="confirm-email" element={<AccountConfirmation />} />
                 <Route path="request-password-reset" element={<RequestPasswordReset />} />
-                <Route path="reset-password" element={<ConfirmPasswordReset />}/>
+                <Route path="reset-password" element={<ConfirmPasswordReset />} />
+                <Route path="admin-logs" element={<ActivityLogs />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </div>

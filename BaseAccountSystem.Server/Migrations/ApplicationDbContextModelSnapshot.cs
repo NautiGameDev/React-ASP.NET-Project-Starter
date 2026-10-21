@@ -95,9 +95,6 @@ namespace BaseAccountSystem.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AccountId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("ActivityType")
                         .HasColumnType("int");
 
@@ -117,11 +114,11 @@ namespace BaseAccountSystem.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("ActivityLogs");
                 });
@@ -313,7 +310,7 @@ namespace BaseAccountSystem.Server.Migrations
                 {
                     b.HasOne("BaseAccountSystem.Server.Models.Account", "Account")
                         .WithMany()
-                        .HasForeignKey("AccountId");
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Account");
                 });

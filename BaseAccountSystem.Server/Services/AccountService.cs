@@ -43,8 +43,7 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Missing credentials",
-                    ErrorType = AuthErrorType.ProcessFailed,
-                    UserId = "Unknown"
+                    ErrorType = AuthErrorType.ProcessFailed
                 };
             }
 
@@ -56,8 +55,7 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = $"Invalid Username/Password combination",
-                    ErrorType = AuthErrorType.NotFound,
-                    UserId = "Unknown"
+                    ErrorType = AuthErrorType.NotFound
                 };
             }
 
@@ -117,8 +115,7 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Credentials not present in DTO",
-                    ErrorType = AuthErrorType.ProcessFailed,
-                    UserId = "Unknown"
+                    ErrorType = AuthErrorType.ProcessFailed
                 };
             }
 
@@ -136,8 +133,7 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = string.Join(", ", createdAccount.Errors.Select(e => e.Description)),
-                    ErrorType = AuthErrorType.ProcessFailed,
-                    UserId = "Unknown"
+                    ErrorType = AuthErrorType.ProcessFailed
                 };
             }
 
@@ -181,8 +177,7 @@ namespace BaseAccountSystem.Server.Services
                 { 
                     Success = false,
                     ErrorMessage = "Account could not be found with that UserId",
-                    ErrorType = AuthErrorType.NotFound,
-                    UserId = "Unknown"
+                    ErrorType = AuthErrorType.NotFound
                 };
             }
 
@@ -258,8 +253,7 @@ namespace BaseAccountSystem.Server.Services
                 {
                     Success = false,
                     ErrorMessage = "Refresh token not found in database",
-                    ErrorType = AuthErrorType.NotFound,
-                    UserId = "Unknown"
+                    ErrorType = AuthErrorType.NotFound
                 };
             }
 

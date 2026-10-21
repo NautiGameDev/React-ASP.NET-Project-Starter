@@ -6,8 +6,12 @@ namespace BaseAccountSystem.Server.Models
     public class ActivityLog
     {
         public int Id { get; set; }
+
+        [ForeignKey(nameof(Account))]
         public string? UserId { get; set; }
-        public virtual Account Account { get; set; }
+        public virtual Account? Account { get; set; }
+
+
         public ActivityTypes ActivityType { get; set; } = ActivityTypes.Undefined;
         public bool IsSuccess { get; set; } = true;
         public string? Details { get; set; }

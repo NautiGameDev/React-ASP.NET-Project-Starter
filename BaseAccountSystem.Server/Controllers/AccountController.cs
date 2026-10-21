@@ -74,7 +74,7 @@ namespace BaseAccountSystem.Server.Controllers
 
             if (!result.Success)
             {
-                await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.Register, false, "Failed to confirm account activation code", UserClient, IpAddress);
+                await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.Register, false, "Failed to confirm account activation code", UserClient, IpAddress);
 
                 return result.ErrorType switch
                 {
@@ -83,7 +83,7 @@ namespace BaseAccountSystem.Server.Controllers
                 };
             }
 
-            await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.Register, true, "Account confirmation successful", UserClient, IpAddress);
+            await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.Register, true, "Account confirmation successful", UserClient, IpAddress);
 
             return Ok(new { message = "Account confirmed successfully" });
         }
@@ -98,7 +98,7 @@ namespace BaseAccountSystem.Server.Controllers
 
             AuthResultDto result = await _accountService.RequestPasswordReset(dto.Email);
 
-            await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.PasswordResetRequest, result.Success, $"Password request handled. Errors: {result.ErrorType}", UserClient, IpAddress);
+            await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.PasswordResetRequest, result.Success, $"Password request handled. Errors: {result.ErrorType}", UserClient, IpAddress);
             
             return Ok(new { message = "If an account with this email exists, instructions to reset the password for this account will be sent to the email." });
         }
@@ -108,7 +108,7 @@ namespace BaseAccountSystem.Server.Controllers
         {
             AuthResultDto result = await _accountService.ConfirmPasswordReset(dto);
 
-            await _activityLogService.CreateActivityLog(result.UserId ?? "Unknown", ActivityTypes.PasswordResetRequest, result.Success, result.ErrorMessage ?? "Password reset successfully", UserClient, IpAddress);
+            await _activityLogService.CreateActivityLog(result.UserId, ActivityTypes.PasswordResetRequest, result.Success, "Password reset successfully", UserClient, IpAddress);
 
             if (!result.Success)
             {

@@ -32,6 +32,15 @@ export async function apiRequest(endpoint, method, body, isRetry = false) {
             }
         }
 
+        //Handle reject access to non-authorized users
+        if (response.status === 403) {
+            return {
+                status: response.status,
+                message: "Access Denied",
+                data: null
+            }
+        }
+
         //Error handling
         if (!response.ok) {
             let errorMessage = "Unknown error communicating with server";
@@ -41,7 +50,7 @@ export async function apiRequest(endpoint, method, body, isRetry = false) {
 
                 if (errorData && errorData.message) {
                     errorMessage = errorData.message;
-                }
+                }                
             }
             catch (jsonError) {
                 console.log("No JSON body found in error message");

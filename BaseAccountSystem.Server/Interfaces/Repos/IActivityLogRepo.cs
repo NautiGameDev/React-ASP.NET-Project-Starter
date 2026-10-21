@@ -8,5 +8,6 @@ namespace BaseAccountSystem.Server.Interfaces.Repos
         public Task<List<ActivityLog>> GetActivityLogsByUserId(string userId);
         public Task<List<ActivityLog>> GetActivityLogsByIp(string ipAddress);
         public Task<List<ActivityLog>> GetActivityLogsByClient(string client);
+        public Task<List<ActivityLog>> GetAllActivityLogs();
     }
 }
