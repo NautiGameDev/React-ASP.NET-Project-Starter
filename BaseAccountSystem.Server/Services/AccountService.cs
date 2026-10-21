@@ -125,7 +125,7 @@ namespace BaseAccountSystem.Server.Services
             var account = new Account
             {
                 UserName = dto.UserName,
-                Email = dto.Email
+                Email = dto.Email.Trim()
             };
 
             var createdAccount = await _userManager.CreateAsync(account, dto.Password);
@@ -214,9 +214,9 @@ namespace BaseAccountSystem.Server.Services
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(dto.Email) && account.Email != dto.Email)
+                if (!string.IsNullOrWhiteSpace(dto.Email) && account.Email.Trim() != dto.Email.Trim())
                 {
-                    var emailResult = await _userManager.SetEmailAsync(account, dto.Email);
+                    var emailResult = await _userManager.SetEmailAsync(account, dto.Email.Trim());
 
                     if (!emailResult.Succeeded)
                     {
@@ -441,7 +441,7 @@ namespace BaseAccountSystem.Server.Services
                 };
             }
 
-            Account? user = await _userManager.FindByEmailAsync(userEmail);
+            Account? user = await _userManager.FindByEmailAsync(userEmail.Trim());
 
             if (user == null)
             {
