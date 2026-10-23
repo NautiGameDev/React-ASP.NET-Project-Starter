@@ -1,5 +1,13 @@
 name: .NET Tests
 
+env:
+  SmtpSettings__Host: "localhost"
+  SmtpSettings__Port: "1025"
+  SmtpSettings__UseSsl: "false"
+  SmtpSettings__SenderEmail: "noreply@example.com"
+  SmtpSettings__SenderName: "Base Account System"
+  Jwt__SigningKey: ${{ secrets.SigningKey }}
+
 on:
   pull_request:
     branches: [ "main", "master" ]
