@@ -9,9 +9,9 @@ namespace BaseAccountSystem.Server.Helpers.Mappers
         {
             return new ActivityLogDto()
             {
-                UserId = activityLog.UserId,
-                UserName = activityLog.Account.UserName ?? "Unknown",
-                Email = activityLog.Account.Email ?? "unknown",
+                UserId = activityLog.UserId ?? "Unknown",
+                UserName = activityLog.Account?.UserName ?? "Unknown",
+                Email = activityLog.Account?.Email ?? "unknown",
                 ActivityType = activityLog.ActivityType.ToString(),
                 IsSuccess = activityLog.IsSuccess,
                 Details = activityLog.Details,

@@ -42,6 +42,13 @@ namespace BaseAccountSystem.Server.Repos
                 .ToListAsync();
         }
 
+        public async Task<List<ActivityLog>> GetAllActivityLogs()
+        {
+            return await _context.ActivityLogs
+                .Include(al => al.Account)
+                .ToListAsync();
+        }
+
         public async Task PostActivityLog(ActivityLog activityLog)
         {
             await _context.ActivityLogs.AddAsync(activityLog);

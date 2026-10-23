@@ -29,7 +29,7 @@ function Login() {
 
         if (response.status === 200) {
             login();
-            navigate(`/Dashboard/${username}`);
+            navigate(`/dashboard/${username}`);
         }
         else {
             setLoginError(`Error ${response.status}: ${response.message}`);
@@ -55,7 +55,10 @@ function Login() {
               </div>
               <div className="form-btn-container">
                   <button type="submit">Login</button>
-                <Link to="/Register/">Create Account</Link>
+                <Link to="/register">Create Account</Link>
+              </div>
+              <div className="form-row">
+                  Forgot password? <Link to="/request-password-reset">Reset Password</Link>
               </div>
           </form>
       </div>

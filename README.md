@@ -6,7 +6,9 @@ This project is a work in progress. It's a starter project that handles API boil
 * Account Login, Registration, and Updating systems [Done]
 * Refresh token handling [Done]
 * Logging system [Done]
-* Account confirmation with email service
-* Password reset system
-* Simple frontend form with API client
+* Account confirmation with email service [Done]
+* Password reset system [Done]
+* Simple frontend form with API client [Done]
 * Unit test design and implementation [Done]
+
+A new Readme file will be written in the future with instructions on using this template. Check back later.

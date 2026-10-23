@@ -68,7 +68,7 @@ function Register() {
         const response = await handleRegistration(username, email, password);
 
         if (response.status === 201) {
-            navigate(`/Welcome/${username}`);
+            navigate(`/welcome/${username}`);
         }
         else {
             setRegistrationError(`Error ${response.status}: ${response.message}`);

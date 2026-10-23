@@ -55,19 +55,22 @@ namespace BaseAccountSystem.Server.Tests
                 var defaultUser = new Account
                 {
                     UserName = TestUser.UserName,
-                    Email = TestUser.Email
+                    Email = TestUser.Email,
+                    EmailConfirmed = true
                 };
 
                 var secondUser = new Account
                 {
                     UserName = TestUserTwo.UserName,
-                    Email = TestUserTwo.Email
+                    Email = TestUserTwo.Email,
+                    EmailConfirmed = true
                 };
 
                 var thirdUser = new Account
                 {
                     UserName = TestUserThree.UserName,
-                    Email = TestUserThree.Email
+                    Email = TestUserThree.Email,
+                    EmailConfirmed = true
                 };
 
                 userManager.CreateAsync(defaultUser, TestUser.Password).GetAwaiter().GetResult();
