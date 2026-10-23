@@ -111,20 +111,25 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Account>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
+    string username = builder.Configuration["AdminConfig:Username"] ?? "AdminUser";
+    string email = builder.Configuration["AdminConfig:Email"] ?? "admin@example.com";
+    string password = builder.Configuration["AdminConfig:Password"] ?? "Admin123!";
+
     if (!await roleManager.RoleExistsAsync("Admin"))
     {
         await roleManager.CreateAsync(new IdentityRole("Admin"));
     }
 
-    if (await userManager.FindByNameAsync(builder.Configuration["AdminConfig:Username"]) == null)
+    if (await userManager.FindByNameAsync(username) == null)
     {
         var adminUser = new Account
         {
-            UserName = builder.Configuration["AdminConfig:Username"],
-            Email = builder.Configuration["AdminConfig:Email"]
+            UserName = username,
+            Email = email,
+            EmailConfirmed = true
         };
 
-        var result = await userManager.CreateAsync(adminUser, builder.Configuration["AdminConfig:Password"]);
+        var result = await userManager.CreateAsync(adminUser, password);
 
         if (result.Succeeded)
         {
