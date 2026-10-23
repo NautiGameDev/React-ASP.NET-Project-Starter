@@ -15,7 +15,7 @@ namespace BaseAccountSystem.Server.Services
             _activityLogRepo = activityLogRepo;
         }
 
-        public async Task CreateActivityLog(string userId, ActivityTypes activityType, bool isSuccess, string details, string userClient, string ip)
+        public async Task CreateActivityLog(string? userId, ActivityTypes activityType, bool isSuccess, string details, string userClient, string ip)
         {
             ActivityLog newLog = new ActivityLog()
             {
@@ -48,6 +48,13 @@ namespace BaseAccountSystem.Server.Services
         public async Task<List<ActivityLogDto>> GetActivityLogsByUserId(string userId)
         {
             List<ActivityLog> logs = await _activityLogRepo.GetActivityLogsByUserId(userId);
+
+            return logs.Select(l => l.ToActivityLogDto()).ToList();
+        }
+
+        public async Task<List<ActivityLogDto>> GetAllActivityLogs()
+        {
+            List<ActivityLog> logs = await _activityLogRepo.GetAllActivityLogs();
 
             return logs.Select(l => l.ToActivityLogDto()).ToList();
         }

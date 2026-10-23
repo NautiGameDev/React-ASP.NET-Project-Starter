@@ -20,7 +20,7 @@ function Dashboard() {
             login();
         }
         else {
-            navigate("/Unauthenticated");
+            navigate("/unauthenticated");
         }
     }
 

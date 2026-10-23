@@ -7,17 +7,25 @@ import Unauthenticated from "./Pages/Unauthenticated";
 import Dashboard from './Pages/Dashboard';
 import Register from './Pages/Register';
 import NotFound from './Pages/NotFound';
+import AccountConfirmation from './Pages/AccountConfirmation';
+import RequestPasswordReset from './Pages/RequestPasswordReset';
+import ConfirmPasswordReset from './Pages/ConfirmPasswordReset';
+import ActivityLogs from './Pages/ActivityLogs';
 
 function App() {
     return (
         <div className="app-container">
             <Routes>
                 <Route index element={<Login />} />
-                <Route path="Dashboard/:username" element={<Dashboard />} />
-                <Route path="Register" element={<Register />} />
-                <Route path="Welcome/:username" element={<Welcome />} />
-                <Route path="SessionExpired" element={<SessionExpired />} />
-                <Route path="Unauthenticated" element={<Unauthenticated />} />
+                <Route path="dashboard/:username" element={<Dashboard />} />
+                <Route path="register" element={<Register />} />
+                <Route path="welcome/:username" element={<Welcome />} />
+                <Route path="sessionExpired" element={<SessionExpired />} />
+                <Route path="unauthenticated" element={<Unauthenticated />} />
+                <Route path="confirm-email" element={<AccountConfirmation />} />
+                <Route path="request-password-reset" element={<RequestPasswordReset />} />
+                <Route path="reset-password" element={<ConfirmPasswordReset />} />
+                <Route path="admin-logs" element={<ActivityLogs />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </div>

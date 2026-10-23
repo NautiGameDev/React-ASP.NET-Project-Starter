@@ -3,10 +3,18 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using BaseAccountSystem.Server.Data;
 using BaseAccountSystem.Server.DTOs.Account;
+using BaseAccountSystem.Server.DTOs.Email;
+using BaseAccountSystem.Server.Models;
 using BaseAccountSystem.Server.Tests.Helpers;
 using BaseAccountSystem.Server.Tests.TestData;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BaseAccountSystem.Server.Tests
 {
@@ -14,11 +22,13 @@ namespace BaseAccountSystem.Server.Tests
     {
         private readonly HttpClient _client;
         private readonly ITestOutputHelper _output;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public RegistrationTests(CustomWebApplicationFactory<Program> factory, ITestOutputHelper output)
         {
             _client = factory.CreateClient();
             _output = output;
+            _factory = factory;
         }
 
         [Fact]
@@ -151,6 +161,114 @@ namespace BaseAccountSystem.Server.Tests
             _output.WriteLine(output);
 
             Assert.Equal(expectedStatusCode, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task ConfirmAccount_ValidCode_Returns200Ok()
+        {
+            var expectedStatusCode = HttpStatusCode.OK;
+
+            NewAccountDto newUser = new NewAccountDto()
+            {
+                UserName = "JaneDoe",
+                Password = "JaneDoe123!",
+                Email = "janedoe@example.com"
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/account/register", newUser);
+            response.EnsureSuccessStatusCode();
+
+            string userId;
+            string confirmationCode;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var user = await db.Users.FirstAsync(u => u.Email == newUser.Email);
+                userId = user.Id;
+
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Account>>();
+                string rawToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                confirmationCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+            }
+
+            ConfirmEmailDto confirmEmailDto = new ConfirmEmailDto()
+            {
+                UserId = userId,
+                ConfirmationCode = confirmationCode,
+            };
+
+            var verificationResponse = await _client.PostAsJsonAsync("/api/account/confirm-email", confirmEmailDto);
+            string responseBody = await verificationResponse.Content.ReadAsStringAsync();
+
+            string testResult = expectedStatusCode == verificationResponse.StatusCode ? "Passed" : "Failed";
+
+            string output = EntryLogHandler.GetEntryString(
+                "Confirm Email",
+                "Confirm account with confirmation code",
+                $"{(int)expectedStatusCode} {expectedStatusCode}",
+                $"{(int)verificationResponse.StatusCode} {verificationResponse.StatusCode}",
+                $"{responseBody}",
+                $"{testResult}"
+                );
+
+            WriteTestResults.AppendData(output);
+
+            _output.WriteLine(output);
+
+            Assert.Equal(expectedStatusCode, verificationResponse.StatusCode);
+
+        }
+
+        [Fact]
+        public async Task ConfirmAccount_InvalidCode_Returns400BadRequest()
+        {
+            var expectedStatusCode = HttpStatusCode.BadRequest;
+
+            NewAccountDto newUser = new NewAccountDto()
+            {
+                UserName = "fakeuser",
+                Password = "Fakeuser123!",
+                Email = "fakeuser@example.com"
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/account/register", newUser);
+            response.EnsureSuccessStatusCode();
+
+            string userId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var user = await db.Users.FirstAsync(u => u.Email == newUser.Email);
+                userId = user.Id;
+            }
+
+            string invalidConfirmationCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes("this-is-an-invalid-token"));
+
+            ConfirmEmailDto confirmEmailDto = new ConfirmEmailDto()
+            {
+                UserId = userId,
+                ConfirmationCode = invalidConfirmationCode,
+            };
+
+            var verificationResponse = await _client.PostAsJsonAsync("/api/account/confirm-email", confirmEmailDto);
+            string responseBody = await verificationResponse.Content.ReadAsStringAsync();
+
+            string testResult = expectedStatusCode == verificationResponse.StatusCode ? "Passed" : "Failed";
+
+            string output = EntryLogHandler.GetEntryString(
+                "Confirm Email",
+                "Attempt confirm account with incorrect code",
+                $"{(int)expectedStatusCode} {expectedStatusCode}",
+                $"{(int)verificationResponse.StatusCode} {verificationResponse.StatusCode}",
+                $"{responseBody}",
+                $"{testResult}"
+                );
+
+            WriteTestResults.AppendData(output);
+
+            _output.WriteLine(output);
+
+            Assert.Equal(expectedStatusCode, verificationResponse.StatusCode);
         }
     }
 }
